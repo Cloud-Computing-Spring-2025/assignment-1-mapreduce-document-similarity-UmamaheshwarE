@@ -1,0 +1,3 @@
+doc1 hadoop plays a crucial role in real world applications
+doc2 Docker is an open platform for developing, shipping, and running applications.
+doc3 Virtualization is the software technology that helps in providing the logical isolation of physical resources.
