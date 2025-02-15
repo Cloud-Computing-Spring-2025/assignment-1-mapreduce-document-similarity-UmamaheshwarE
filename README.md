@@ -107,7 +107,6 @@ Navigate to the project directory where `docker-compose.yml` is located and run:
 docker-compose up -d
 ```  
 This will start the Hadoop NameNode, DataNode, and ResourceManager services.  
-
 #### **Step 3: Access the Hadoop Container**  
 Once the cluster is running, enter the **Hadoop master node** container:  
 ```sh
@@ -124,11 +123,15 @@ Ensure Maven is installed, then navigate to your project folder and run:
 mvn clean package
 ```  
 This will generate a JAR file inside the `target` directory.  
+#### **step 3 **
+```sh
+mv target/*.jar shared-folder/input/code/
+```
 
 #### **Step 2: Copy the JAR File to the Hadoop Container**  
 Move the compiled JAR into the running Hadoop container:  
 ```sh
-docker cp target/similarity.jar hadoop-master:/opt/hadoop-3.2.1/share/hadoop/mapreduce/similarity.jar
+docker cp shared-folder/input/code/DocumentSimilarity-0.0.1-SNAPSHOT.jar resourcemanager:/opt/hadoop-3.2.1/share/hadoop/mapreduce/
 ```
 
 ---
@@ -138,13 +141,13 @@ docker cp target/similarity.jar hadoop-master:/opt/hadoop-3.2.1/share/hadoop/map
 #### **Step 1: Create an Input Directory in HDFS**  
 Inside the Hadoop container, create the directory where input files will be stored:  
 ```sh
-hdfs dfs -mkdir -p /input
+hadoop fs -mkdir -p /input/dataset
 ```
 
 #### **Step 2: Upload Dataset to HDFS**  
 Copy your local dataset into the Hadoop cluster’s HDFS:  
 ```sh
-hdfs dfs -put /path/to/local/input/* /input/
+hadoop fs -put ./doc.txt /input/dataset/
 ```
 
 ---
@@ -153,12 +156,13 @@ hdfs dfs -put /path/to/local/input/* /input/
 
 Run the Hadoop job using the JAR file inside the container:  
 ```sh
-hadoop jar similarity.jar DocumentSimilarityDriver /input /output_similarity /output_final
+hadoop jar /opt/hadoop-3.2.1/share/hadoop/mapreduce/DocumentSimilarity-0.0.1-SNAPSHOT.jar com.example.controller.DocumentSimilarityDriver /input/dataset /output
 ```
 
 ---
 
 ### **📊 Retrieving the Output**  
+
 
 To view the results stored in HDFS:  
 ```sh
@@ -167,6 +171,6 @@ hdfs dfs -cat /output_final/part-r-00000
 
 If you want to download the output to your local machine:  
 ```sh
-hdfs dfs -get /output_final /path/to/local/output
+docker cp resourcemanager:/opt/hadoop-3.2.1/share/hadoop/mapreduce/output/ shared-folder/output/
 ```
 ---
